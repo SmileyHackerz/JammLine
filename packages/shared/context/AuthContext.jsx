@@ -98,11 +98,12 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
-        profile,
+        profile, // C'est l'objet complet de la BDD
         isLoading,
         isAuthenticated: !!user,
         userType: profile?.role || "patient",
         userName: profile?.nom || "Utilisateur",
+        currentUser: profile, // On s'assure que currentUser EST le profil
         login: (email, password) =>
           supabase.auth.signInWithPassword({ email, password }),
         logout: handleAutoLogout,
