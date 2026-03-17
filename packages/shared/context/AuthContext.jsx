@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .limit(1);
+      .maybeSingle();
     if (data && data[0]) {
       setProfile(data[0]);
     }
@@ -114,17 +114,35 @@ export function AuthProvider({ children }) {
         login: (email, password) =>
           supabase.auth.signInWithPassword({ email, password }),
         logout: handleAutoLogout, // Utilise la même fonction pour le bouton manuel
-        register: async ({ email, password, name, type }) => {
+        register: async ({ email, password, name, type, phone }) => {
+          // 1. Création du compte dans l'Auth de Supabase
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
           });
+
           if (error) throw error;
+
           if (data.user) {
-            await supabase
-              .from("profiles")
-              .insert([{ id: data.user.id, nom: name, email, role: type }]);
-            loadProfileData(data.user.id);
+            // 2. Création du profil avec TOUTES les infos (Rôle + Téléphone)
+            const { error: pError } = await supabase.from("profiles").insert([
+              {
+                id: data.user.id,
+                nom: name,
+                email: email,
+                role: type, // Fix : Enregistre bien 'medecin' ou 'patient'
+                telephone: phone, // Fix : Enregistre le numéro de téléphone
+                settings: { notifications: true, darkMode: false },
+              },
+            ]);
+
+            if (pError) {
+              console.error("Erreur profil:", pError);
+              throw pError;
+            }
+
+            // 3. Charger les données immédiatement
+            await loadProfileData(data.user.id);
           }
           return data;
         },
