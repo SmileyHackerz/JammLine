@@ -91,9 +91,18 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // 1. On vide tout avant de tenter une nouvelle connexion
+    localStorage.clear();
+
     try {
-      await login(email.trim(), password); // Uniquement email et password
-      navigate("/dashboard");
+      const { data, error } = await login(email.trim(), password);
+      if (error) throw error;
+
+      // 2. On attend un tout petit peu que Supabase stabilise la session
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 500);
     } catch (error: any) {
       window.alert(error.message);
     } finally {

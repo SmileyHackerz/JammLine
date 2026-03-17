@@ -40,13 +40,14 @@ export function AuthProvider({ children }) {
   };
 
   const loadProfileData = async (userId) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .maybeSingle();
-    if (data && data[0]) {
-      setProfile(data[0]);
+
+    if (data) {
+      setProfile(data); // Ici, data contient maintenant { nom, email, telephone, role, etc. }
     }
   };
 
