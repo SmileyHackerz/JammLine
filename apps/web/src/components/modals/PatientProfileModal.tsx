@@ -100,36 +100,46 @@ export default function PatientProfileModal({
   if (!isOpen) return null;
 
   // Helper pour les champs
-  const Field = ({ label, value, name, icon: Icon, editable = true }: any) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-        {label}
-      </label>
-      <div
-        className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${
-          isEditing && editable
-            ? "bg-white border-teal-500 shadow-sm"
-            : "bg-gray-50 border-transparent text-gray-500"
-        }`}
-      >
-        <Icon
-          size={16}
-          className={isEditing && editable ? "text-teal-500" : "text-gray-400"}
-        />
-        {isEditing && editable ? (
-          <input
-            className="bg-transparent w-full outline-none text-sm font-bold text-gray-900"
-            value={value}
-            onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+  const Field = ({ label, value, name, icon: Icon, editable = true }: any) => {
+    const uniqueId = `modal-input-${name}`; // 👈 ID UNIQUE
+    return (
+      <div className="flex flex-col gap-1">
+        <label
+          htmlFor={uniqueId}
+          className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1"
+        >
+          {label}
+        </label>
+        <div
+          className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${
+            isEditing && editable
+              ? "bg-white border-teal-500 shadow-sm"
+              : "bg-gray-50 border-transparent text-gray-500"
+          }`}
+        >
+          <Icon
+            size={16}
+            className={
+              isEditing && editable ? "text-teal-500" : "text-gray-400"
+            }
           />
-        ) : (
-          <span className="text-sm font-bold text-gray-800">
-            {value || "Non renseigné"}
-          </span>
-        )}
+          {isEditing && editable ? (
+            <input
+              id={uniqueId} // 👈 BRANCHEMENT DE L'ID
+              className="bg-transparent w-full outline-none text-sm font-bold text-gray-900"
+              value={value}
+              onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+              autoFocus={false} // 👈 SECURITÉ
+            />
+          ) : (
+            <span className="text-sm font-bold text-gray-800">
+              {value || "Non renseigné"}
+            </span>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-[160] flex items-end md:items-center justify-center p-0 md:p-4">

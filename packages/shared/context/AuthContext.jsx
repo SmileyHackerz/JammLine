@@ -40,14 +40,25 @@ export function AuthProvider({ children }) {
   };
 
   const loadProfileData = async (userId) => {
+    console.log("📡 Récupération du profil Supabase pour :", userId);
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .maybeSingle();
 
+    if (error) {
+      console.error("❌ Erreur de lecture profil :", error.message);
+      return;
+    }
+
     if (data) {
-      setProfile(data); // Ici, data contient maintenant { nom, email, telephone, role, etc. }
+      console.log("✅ Données reçues de la BDD :", data);
+      setProfile(data);
+    } else {
+      console.warn(
+        "⚠️ Aucune ligne trouvée dans la table profiles pour cet ID",
+      );
     }
   };
 
