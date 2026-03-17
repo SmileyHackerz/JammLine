@@ -23,21 +23,19 @@ const webStorage = {
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading, user } = useAuth();
 
-  // TANT QUE isLoading est vrai, on affiche l'écran de chargement
-  // même si user est encore null pendant une fraction de seconde
-  if (isLoading) {
+  // On n'affiche le chargement QUE si on n'a ni session, ni fini de chercher
+  if (isLoading && !user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-teal-600 font-bold animate-pulse uppercase text-xs tracking-widest">
-          Vérification de la session...
+        <Logo size="normal" className="animate-pulse" />
+        <p className="mt-4 text-teal-600 font-bold text-xs uppercase tracking-widest">
+          Connexion...
         </p>
       </div>
     );
   }
 
-  // SI on a fini de charger ET qu'on n'a vraiment personne -> Login
-  if (!isAuthenticated && !user) {
+  if (!isAuthenticated && !user && !isLoading) {
     return <Navigate to="/" />;
   }
 

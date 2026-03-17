@@ -14,99 +14,69 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
   const inactivityTimerRef = useRef(null);
-  const FIVE_MINUTES = 5 * 60 * 1000;
 
-  const handleAutoLogout = async () => {
-    await supabase.auth.signOut();
-    localStorage.clear();
-    window.location.href = "/";
-  };
-
-  const resetTimer = () => {
-    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-    inactivityTimerRef.current = setTimeout(handleAutoLogout, FIVE_MINUTES);
-  };
-
-  // 1. FONCTION DE CHARGEMENT UNIQUE
   const loadProfileData = async (userId) => {
-    if (!userId) return;
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (data) setProfile(data);
-    } catch (e) {
-      console.error("Erreur de chargement profil:", e.message);
-    }
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
+    if (data) setProfile(data);
   };
 
-  // 2. USEEFFECT SANS DÉPENDANCE (ÉVITE LA BOUCLE)
   useEffect(() => {
-    // Vérification initiale
-    const initAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        await loadProfileData(session.user.id);
-        resetTimer();
+    // 1. Vérification initiale ultra-rapide
+    const init = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          loadProfileData(session.user.id); // On lance le chargement en arrière-plan
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        // ON LIBÈRE L'ÉCRAN QUOI QU'IL ARRIVE
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
-    initAuth();
+    init();
 
-    // Écouteur d'état
+    // 2. Écouteur de changement d'état
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUser(session.user);
-        await loadProfileData(session.user.id);
-        resetTimer();
+        loadProfileData(session.user.id);
       } else {
         setUser(null);
         setProfile(null);
       }
-      setIsLoading(false);
+      setIsLoading(false); // Libère aussi ici
     });
 
-    // Écouteurs d'activité
-    const events = [
-      "mousedown",
-      "mousemove",
-      "keypress",
-      "scroll",
-      "touchstart",
-    ];
-    events.forEach((e) => window.addEventListener(e, resetTimer));
-
-    return () => {
-      subscription.unsubscribe();
-      events.forEach((e) => window.removeEventListener(e, resetTimer));
-      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-    };
-  }, []); // 👈 VIDE : S'exécute une seule fois
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        profile, // C'est l'objet complet de la BDD
+        profile,
         isLoading,
         isAuthenticated: !!user,
         userType: profile?.role || "patient",
-        userName: profile?.nom || "Utilisateur",
-        currentUser: profile, // On s'assure que currentUser EST le profil
+        userName: profile?.nom || "Chargement...",
         login: (email, password) =>
           supabase.auth.signInWithPassword({ email, password }),
-        logout: handleAutoLogout,
+        logout: async () => {
+          await supabase.auth.signOut();
+          window.location.href = "/";
+        },
         register: async ({ email, password, name, type, phone }) => {
           const { data, error } = await supabase.auth.signUp({
             email,
@@ -114,26 +84,18 @@ export function AuthProvider({ children }) {
           });
           if (error) throw error;
           if (data.user) {
-            // Insertion avec le nom de colonne 'telephone'
             await supabase.from("profiles").insert([
               {
                 id: data.user.id,
                 nom: name,
-                email: email,
+                email,
                 role: type,
-                telephone: phone, // 👈 CORRECTION ICI
+                telephone: phone,
               },
             ]);
-            await loadProfileData(data.user.id);
+            loadProfileData(data.user.id);
           }
           return data;
-        },
-        updateProfile: async (updates) => {
-          const { error } = await supabase
-            .from("profiles")
-            .update(updates)
-            .eq("id", user.id);
-          if (!error) await loadProfileData(user.id);
         },
       }}
     >
