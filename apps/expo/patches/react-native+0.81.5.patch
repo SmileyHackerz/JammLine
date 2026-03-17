@@ -1,0 +1,17 @@
+diff --git a/node_modules/react-native/Libraries/WebSocket/WebSocket.js b/node_modules/react-native/Libraries/WebSocket/WebSocket.js
+index 1234567..abcdefg 100644
+--- a/node_modules/react-native/Libraries/WebSocket/WebSocket.js
++++ b/node_modules/react-native/Libraries/WebSocket/WebSocket.js
+@@ -252,7 +252,12 @@
+           return;
+         }
+         this.readyState = this.OPEN;
+-        this.protocol = ev.protocol;
++        Object.defineProperty(this, 'protocol', {
++          value: ev.protocol,
++          writable: true,
++          configurable: true,
++          enumerable: true,
++        });
+         this.dispatchEvent(new Event('open'));
+       }),
