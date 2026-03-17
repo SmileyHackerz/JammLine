@@ -34,7 +34,7 @@ export default function NouveauTicketScreen() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [createdTicket, setCreatedTicket] = useState<any>(null);
-
+  const { userType } = useAuth();
   // ─── Soumettre le ticket ──────────────────────────────────────────────────────
   const handleSubmitTicket = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +76,27 @@ export default function NouveauTicketScreen() {
     setCreatedTicket(null);
     setStep(1);
   };
+
+  if (userType !== "patient") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+        <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+          <XCircle size={40} className="text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900">Accès réservé</h2>
+        <p className="text-gray-500 mt-2">
+          En tant que {userType}, vous ne pouvez pas prendre de ticket de
+          consultation.
+        </p>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mt-6 text-teal-600 font-bold hover:underline"
+        >
+          Retour au tableau de bord
+        </button>
+      </div>
+    );
+  }
 
   // ══════════════════════════════════════════════════
   // ÉTAPE 3 : Confirmation
