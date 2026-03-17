@@ -8,6 +8,7 @@ import NotificationsModal from "../components/modals/NotificationsModal";
 import { useNavigate } from "react-router-dom";
 import {
   Bell,
+  LogOut,
   Ticket,
   Clock,
   Activity,
@@ -20,6 +21,7 @@ import {
 
 export default function PatientDashboard() {
   const { userName } = useAuth();
+  const { logout } = useAuth();
   const { services, tickets, statistics, notifications } = useApp();
   const navigate = useNavigate();
   const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false);
@@ -135,6 +137,17 @@ export default function PatientDashboard() {
               className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all active:scale-90"
             >
               <Settings size={20} color="#fff" />
+            </button>
+            <button
+              onClick={async () => {
+                await logout();
+                navigate("/");
+              }}
+              className="w-10 h-10 flex items-center justify-center gap-3 p-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl font-bold text-sm transition-all border border-red-100 active:scale-95 shadow-sm group"
+            >
+              <div className="bg-red-100 p-2 rounded-lg group-hover:bg-red-200 transition-colors">
+                <LogOut size={20} />
+              </div>
             </button>
           </div>
         </div>

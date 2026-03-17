@@ -32,7 +32,6 @@ const ROLES = [
     color: "blue",
     hex: "#3B82F6",
   },
-  { key: "admin", label: "Admin", icon: Shield, color: "red", hex: "#EF4444" },
 ];
 
 function Register() {

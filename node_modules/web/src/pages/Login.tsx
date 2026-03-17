@@ -84,17 +84,12 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      window.alert("Veuillez remplir l'email et le mot de passe.");
-      return;
-    }
-
     setIsLoading(true);
     try {
-      await login(email.trim(), password, selectedRole);
+      await login(email.trim(), password); // Uniquement email et password
       navigate("/dashboard");
     } catch (error: any) {
-      window.alert(error.message || "Email, mot de passe ou rôle incorrect.");
+      window.alert(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -245,57 +240,56 @@ export default function Login() {
           </Link>
         </div>
 
-        {/* ── Connexion rapide (démo) ── */}
+        {/* ── Section Démo (Désactivée pour la production) ── */}
         <div className="flex items-center gap-4 my-8">
-          <div className="flex-1 h-px bg-gray-200"></div>
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-            Connexion rapide (démo)
+          <div className="flex-1 h-px bg-gray-100"></div>
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+            Connexion Rapide (Version Demo)
           </span>
-          <div className="flex-1 h-px bg-gray-200"></div>
+          <div className="flex-1 h-px bg-gray-100"></div>
         </div>
 
         <div className="space-y-3">
           {DEMO_ACCOUNTS.map((account) => {
             const Icon = account.icon;
             return (
-              <button
+              <div
                 key={account.role}
-                onClick={() => handleQuickLogin(account)}
-                disabled={isLoading}
-                className="w-full flex items-center gap-4 p-3 rounded-xl border-2 bg-gray-50 hover:bg-white transition-all group disabled:opacity-60"
-                style={{ borderColor: `${account.hex}30` }} // 30 pour la transparence
+                className="w-full flex items-center gap-4 p-3 rounded-2xl border-2 border-gray-50 bg-gray-50/50 opacity-60 grayscale-[0.5] cursor-not-allowed relative group"
               >
+                {/* Badge "Indisponible" qui apparaît au survol */}
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl z-10">
+                  <span className="text-[10px] font-black text-gray-400 uppercase">
+                    Utilisez vos identifiants
+                  </span>
+                </div>
+
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm shrink-0"
                   style={{ backgroundColor: account.hex }}
                 >
                   <Icon size={18} />
                 </div>
+
                 <div className="flex-1 text-left">
-                  <p
-                    className="text-sm font-bold text-gray-900 group-hover:text-gray-700 transition-colors"
-                    style={{ color: account.hex }}
-                  >
+                  <p className="text-sm font-bold text-gray-400">
                     {account.label}
                   </p>
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase">
+                  <p className="text-[10px] font-semibold text-gray-300 uppercase tracking-wider">
                     {account.role}
                   </p>
                 </div>
-                <ArrowRight
-                  size={18}
-                  className="opacity-40 group-hover:opacity-100 transition-opacity"
-                  style={{ color: account.hex }}
-                />
-              </button>
+
+                <div className="w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center">
+                  <Lock size={12} className="text-gray-300" />
+                </div>
+              </div>
             );
           })}
         </div>
       </div>
 
-      <p className="text-white/60 text-xs font-medium mt-8">
-        JammLine v1.0.0 — Démo Web
-      </p>
+      <p className="text-white/60 text-xs font-medium mt-8">JammLine v1.0.0</p>
     </div>
   );
 }

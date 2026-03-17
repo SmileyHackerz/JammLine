@@ -5,5 +5,8 @@
   "types": "index.d.ts",
   "peerDependencies": {
     "react": "*"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.2"
   }
 }

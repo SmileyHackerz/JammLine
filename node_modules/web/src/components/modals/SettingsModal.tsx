@@ -29,6 +29,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { addNotification } = useApp();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { updateProfile, currentUser } = useAuth();
 
   const [settings, setSettings] = useState({
     notifications: {
@@ -65,6 +66,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     addNotification("Paramètres enregistrés avec succès", "success", "system");
     window.alert("Vos paramètres ont été mis à jour !");
     onClose();
+  };
+
+  const handleToggleNotif = async () => {
+    const newSettings = {
+      ...currentUser.settings,
+      notifications: !currentUser.settings.notifications,
+    };
+    await updateProfile({ settings: newSettings });
   };
 
   if (!isOpen) return null;
@@ -138,18 +147,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       Alertes pour vos {key}s
                     </p>
                   </div>
-                  <Toggle
-                    enabled={val}
-                    onClick={() =>
-                      setSettings({
-                        ...settings,
-                        notifications: {
-                          ...settings.notifications,
-                          [key]: !val,
-                        },
-                      })
-                    }
-                  />
+                  <Toggle enabled={val} onClick={handleToggleNotif} />
                 </div>
               ))}
             </div>
