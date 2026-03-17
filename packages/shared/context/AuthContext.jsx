@@ -15,65 +15,69 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Référence pour stocker le Timer
   const inactivityTimerRef = useRef(null);
-  const FIVE_MINUTES = 5 * 60 * 1000; // 300 000 ms
+  const FIVE_MINUTES = 5 * 60 * 1000;
 
-  // 2. Fonction de déconnexion automatique
   const handleAutoLogout = async () => {
-    console.log("⏰ Temps d'inactivité dépassé. Déconnexion...");
     await supabase.auth.signOut();
     localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = "/"; // Redirection forcée vers l'accueil
+    window.location.href = "/";
   };
 
-  // 3. Fonction pour réinitialiser le timer à chaque mouvement
   const resetTimer = () => {
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
-    // Si l'utilisateur est connecté, on relance le compte à rebours
-    if (user) {
-      inactivityTimerRef.current = setTimeout(handleAutoLogout, FIVE_MINUTES);
-    }
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    inactivityTimerRef.current = setTimeout(handleAutoLogout, FIVE_MINUTES);
   };
 
+  // 1. FONCTION DE CHARGEMENT UNIQUE
   const loadProfileData = async (userId) => {
-    console.log("📡 Récupération du profil Supabase pour :", userId);
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
+    if (!userId) return;
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
-    if (error) {
-      console.error("❌ Erreur de lecture profil :", error.message);
-      return;
-    }
-
-    if (data) {
-      console.log("✅ Données reçues de la BDD :", data);
-      setProfile(data);
-    } else {
-      console.warn(
-        "⚠️ Aucune ligne trouvée dans la table profiles pour cet ID",
-      );
+      if (error) throw error;
+      if (data) setProfile(data);
+    } catch (e) {
+      console.error("Erreur de chargement profil:", e.message);
     }
   };
 
+  // 2. USEEFFECT SANS DÉPENDANCE (ÉVITE LA BOUCLE)
   useEffect(() => {
-    // Initialisation session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Vérification initiale
+    const initAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
-        loadProfileData(session.user.id);
-        resetTimer(); // Lancer le timer au chargement
+        await loadProfileData(session.user.id);
+        resetTimer();
+      }
+      setIsLoading(false);
+    };
+    initAuth();
+
+    // Écouteur d'état
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        await loadProfileData(session.user.id);
+        resetTimer();
+      } else {
+        setUser(null);
+        setProfile(null);
       }
       setIsLoading(false);
     });
 
-    // 4. Écouteurs d'activité utilisateur
+    // Écouteurs d'activité
     const events = [
       "mousedown",
       "mousemove",
@@ -81,38 +85,14 @@ export function AuthProvider({ children }) {
       "scroll",
       "touchstart",
     ];
-
-    if (user) {
-      events.forEach((event) => {
-        window.addEventListener(event, resetTimer);
-      });
-    }
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        loadProfileData(session.user.id);
-        resetTimer(); // Reset au changement d'état
-      } else {
-        setUser(null);
-        setProfile(null);
-        if (inactivityTimerRef.current)
-          clearTimeout(inactivityTimerRef.current);
-      }
-      setIsLoading(false);
-    });
+    events.forEach((e) => window.addEventListener(e, resetTimer));
 
     return () => {
       subscription.unsubscribe();
-      // Nettoyage des écouteurs
-      events.forEach((event) => {
-        window.removeEventListener(event, resetTimer);
-      });
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     };
-  }, [user]); // On relance l'effet si l'utilisateur change
+  }, []); // 👈 VIDE : S'exécute une seule fois
 
   return (
     <AuthContext.Provider
@@ -125,38 +105,34 @@ export function AuthProvider({ children }) {
         userName: profile?.nom || "Utilisateur",
         login: (email, password) =>
           supabase.auth.signInWithPassword({ email, password }),
-        logout: handleAutoLogout, // Utilise la même fonction pour le bouton manuel
+        logout: handleAutoLogout,
         register: async ({ email, password, name, type, phone }) => {
-          // 1. Création du compte dans l'Auth de Supabase
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
           });
-
           if (error) throw error;
-
           if (data.user) {
-            // 2. Création du profil avec TOUTES les infos (Rôle + Téléphone)
-            const { error: pError } = await supabase.from("profiles").insert([
+            // Insertion avec le nom de colonne 'telephone'
+            await supabase.from("profiles").insert([
               {
                 id: data.user.id,
                 nom: name,
                 email: email,
-                role: type, // Fix : Enregistre bien 'medecin' ou 'patient'
-                telephone: phone, // Fix : Enregistre le numéro de téléphone
-                settings: { notifications: true, darkMode: false },
+                role: type,
+                telephone: phone, // 👈 CORRECTION ICI
               },
             ]);
-
-            if (pError) {
-              console.error("Erreur profil:", pError);
-              throw pError;
-            }
-
-            // 3. Charger les données immédiatement
             await loadProfileData(data.user.id);
           }
           return data;
+        },
+        updateProfile: async (updates) => {
+          const { error } = await supabase
+            .from("profiles")
+            .update(updates)
+            .eq("id", user.id);
+          if (!error) await loadProfileData(user.id);
         },
       }}
     >
