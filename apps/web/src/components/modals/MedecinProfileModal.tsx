@@ -64,21 +64,23 @@ export default function MedecinProfileModal({
     };
   }, [isOpen]);
 
+  // Dans MedecinProfileModal.tsx, remplace le useEffect :
+
   useEffect(() => {
     if (currentUser && isOpen) {
-      const p = currentUser.profile || {};
       setForm({
-        nom: currentUser.name || "",
+        nom: currentUser.nom || "",
         email: currentUser.email || "",
-        telephone: p.telephone || "",
-        specialite: p.specialite || "Médecin généraliste",
-        service: p.service || "Consultation générale",
-        experience: p.experience || "8 ans",
-        diplome: p.diplome || "Doctorat en médecine",
-        ordre: p.ordre || "ORD-SEN-2020-1234",
-        disponible: p.disponible !== undefined ? p.disponible : true,
-        consultationDuration: p.consultationDuration || "15 minutes",
-        languages: p.languages || ["Français", "Wolof"],
+        telephone: currentUser.telephone || "",
+        specialite: currentUser.specialite || "Non renseignée",
+        service: currentUser.service || "Accueil",
+        experience: currentUser.experience || "",
+        diplome: currentUser.diplome || "",
+        ordre: currentUser.ordre || "",
+        disponible:
+          currentUser.disponible !== undefined ? currentUser.disponible : true,
+        consultationDuration: currentUser.consultationDuration || "15 minutes",
+        languages: currentUser.languages || ["Français"],
       });
     }
   }, [currentUser, isOpen]);

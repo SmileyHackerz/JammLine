@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Ajout de useEffect
 import { useAuth } from "@monprojet/shared";
 import { useNavigate } from "react-router-dom";
 import {
@@ -32,12 +32,25 @@ export default function ProfileScreen() {
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
+  // 1. Initialisation vide pour éviter les flashs de fausses données
   const [userInfo, setUserInfo] = useState({
-    name: userName || "",
-    email: currentUser?.email || "",
-    phone: currentUser?.profile?.telephone || "+221 77 000 00 00",
-    address: currentUser?.profile?.adresse || "Dakar, Sénégal",
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
   });
+
+  // 2. Synchronisation réelle avec les données de Supabase
+  useEffect(() => {
+    if (currentUser) {
+      setUserInfo({
+        name: currentUser.nom || "",
+        email: currentUser.email || "",
+        phone: currentUser.telephone || "", // Colonne 'telephone' de ta BDD
+        address: currentUser.adresse || "", // Colonne 'adresse' de ta BDD
+      });
+    }
+  }, [currentUser]);
 
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
@@ -45,6 +58,7 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     try {
       await updateProfile({
+        nom: userInfo.name,
         telephone: userInfo.phone,
         adresse: userInfo.address,
       });
@@ -90,9 +104,8 @@ export default function ProfileScreen() {
 
   const getRoleLabel = () => {
     if (userType === "patient") return "Patient";
-    if (userType === "medecin")
-      return currentUser?.profile?.specialite || "Médecin";
-    return currentUser?.profile?.role || "Administrateur";
+    if (userType === "medecin") return currentUser?.specialite || "Médecin";
+    return currentUser?.role || "Administrateur";
   };
 
   const getProfileExtra = () => {
@@ -206,11 +219,16 @@ export default function ProfileScreen() {
                 <User size={18} className="text-gray-400" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-gray-400 font-medium mb-1">
+                <label
+                  htmlFor="name-input"
+                  className="text-xs text-gray-400 font-medium mb-1 block"
+                >
                   Nom complet
-                </p>
+                </label>
+
                 {isEditing ? (
                   <input
+                    id="name-input"
                     type="text"
                     value={userInfo.name}
                     onChange={(e) =>
@@ -220,7 +238,7 @@ export default function ProfileScreen() {
                   />
                 ) : (
                   <p className="text-sm font-semibold text-gray-900">
-                    {userInfo.name}
+                    {userInfo.name || "Non renseigné"}
                   </p>
                 )}
               </div>
@@ -231,7 +249,9 @@ export default function ProfileScreen() {
                 <Mail size={18} className="text-gray-400" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-gray-400 font-medium mb-1">Email</p>
+                <p className="text-xs text-gray-400 font-medium mb-1 block">
+                  Email
+                </p>
                 <p className="text-sm font-semibold text-gray-900">
                   {userInfo.email}
                 </p>
@@ -243,11 +263,16 @@ export default function ProfileScreen() {
                 <Phone size={18} className="text-gray-400" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-gray-400 font-medium mb-1">
+                <label
+                  htmlFor="phone-input"
+                  className="text-xs text-gray-400 font-medium mb-1 block"
+                >
                   Téléphone
-                </p>
+                </label>
+
                 {isEditing ? (
                   <input
+                    id="phone-input"
                     type="tel"
                     value={userInfo.phone}
                     onChange={(e) =>
@@ -257,7 +282,7 @@ export default function ProfileScreen() {
                   />
                 ) : (
                   <p className="text-sm font-semibold text-gray-900">
-                    {userInfo.phone}
+                    {userInfo.phone || "Non renseigné"}
                   </p>
                 )}
               </div>
@@ -268,11 +293,16 @@ export default function ProfileScreen() {
                 <MapPin size={18} className="text-gray-400" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-gray-400 font-medium mb-1">
+                <label
+                  htmlFor="address-input"
+                  className="text-xs text-gray-400 font-medium mb-1 block"
+                >
                   Adresse
-                </p>
+                </label>
+
                 {isEditing ? (
                   <input
+                    id="address-input"
                     type="text"
                     value={userInfo.address}
                     onChange={(e) =>
@@ -282,7 +312,7 @@ export default function ProfileScreen() {
                   />
                 ) : (
                   <p className="text-sm font-semibold text-gray-900">
-                    {userInfo.address}
+                    {userInfo.address || "Non renseignée"}
                   </p>
                 )}
               </div>

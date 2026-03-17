@@ -51,20 +51,21 @@ export default function PatientProfileModal({
   });
 
   // Charger les données à l'ouverture
+  // Dans PatientProfileModal.tsx, remplace le useEffect par celui-ci :
+
   useEffect(() => {
     if (currentUser && isOpen) {
-      const p = currentUser.profile || {};
       setForm({
-        nom: currentUser.name || "",
+        nom: currentUser.nom || "", // Supabase utilise .nom
         email: currentUser.email || "",
-        telephone: p.telephone || "",
-        dateNaissance: p.dateNaissance || "",
-        genre: p.genre || "",
-        adresse: p.adresse || "",
-        mutuelle: p.mutuelle || "",
-        groupeSanguin: p.groupeSanguin || "",
-        allergies: p.allergies || "",
-        traitements: p.traitements || "",
+        telephone: currentUser.telephone || "", // Supabase utilise .telephone
+        dateNaissance: currentUser.dateNaissance || "",
+        genre: currentUser.genre || "",
+        adresse: currentUser.adresse || "",
+        mutuelle: currentUser.mutuelle || "",
+        groupeSanguin: currentUser.groupeSanguin || "",
+        allergies: currentUser.allergies || "",
+        traitements: currentUser.traitements || "",
       });
     }
   }, [currentUser, isOpen]);
