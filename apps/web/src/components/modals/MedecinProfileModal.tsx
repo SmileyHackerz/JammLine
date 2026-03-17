@@ -28,6 +28,56 @@ interface MedecinProfileModalProps {
   onClose: () => void;
 }
 
+interface FieldProps {
+  label: string;
+  value: string;
+  name: string;
+  icon: any;
+  isEditing: boolean;
+  setForm: (val: any) => void;
+  form: any;
+}
+
+const Field = ({
+  label,
+  value,
+  name,
+  isEditing,
+  setForm,
+  form,
+  icon: Icon,
+  editable = true,
+}: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+      {label}
+    </label>
+    <div
+      className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+        isEditing && editable
+          ? "bg-white border-blue-500 shadow-sm"
+          : "bg-gray-50 border-transparent"
+      }`}
+    >
+      <Icon
+        size={16}
+        className={isEditing && editable ? "text-blue-500" : "text-gray-400"}
+      />
+      {isEditing && editable ? (
+        <input
+          className="bg-transparent w-full outline-none text-sm font-semibold text-gray-900"
+          value={value}
+          onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+        />
+      ) : (
+        <span className="text-sm font-semibold text-gray-800">
+          {value || "Non renseigné"}
+        </span>
+      )}
+    </div>
+  </div>
+);
+
 export default function MedecinProfileModal({
   isOpen,
   onClose,
@@ -109,37 +159,6 @@ export default function MedecinProfileModal({
   };
 
   if (!isOpen) return null;
-
-  const Field = ({ label, value, name, icon: Icon, editable = true }: any) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-        {label}
-      </label>
-      <div
-        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-          isEditing && editable
-            ? "bg-white border-blue-500 shadow-sm"
-            : "bg-gray-50 border-transparent"
-        }`}
-      >
-        <Icon
-          size={16}
-          className={isEditing && editable ? "text-blue-500" : "text-gray-400"}
-        />
-        {isEditing && editable ? (
-          <input
-            className="bg-transparent w-full outline-none text-sm font-semibold text-gray-900"
-            value={value}
-            onChange={(e) => setForm({ ...form, [name]: e.target.value })}
-          />
-        ) : (
-          <span className="text-sm font-semibold text-gray-800">
-            {value || "Non renseigné"}
-          </span>
-        )}
-      </div>
-    </div>
-  );
 
   return (
     <div className="fixed inset-0 z-[120] flex items-end md:items-center justify-center p-0 md:p-4">
