@@ -1,0 +1,8 @@
+{
+  "name": "mon-projet-global",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
