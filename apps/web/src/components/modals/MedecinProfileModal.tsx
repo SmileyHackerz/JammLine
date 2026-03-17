@@ -46,7 +46,6 @@ const Field = ({
   setForm,
   form,
   icon: Icon,
-  editable = true,
 }: any) => (
   <div className="flex flex-col gap-1.5">
     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
@@ -54,16 +53,16 @@ const Field = ({
     </label>
     <div
       className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-        isEditing && editable
+        isEditing
           ? "bg-white border-blue-500 shadow-sm"
           : "bg-gray-50 border-transparent"
       }`}
     >
       <Icon
         size={16}
-        className={isEditing && editable ? "text-blue-500" : "text-gray-400"}
+        className={isEditing ? "text-blue-500" : "text-gray-400"}
       />
-      {isEditing && editable ? (
+      {isEditing ? (
         <input
           className="bg-transparent w-full outline-none text-sm font-semibold text-gray-900"
           value={value}
@@ -265,48 +264,72 @@ export default function MedecinProfileModal({
                 value={form.nom}
                 name="nom"
                 icon={User}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Email professionnel"
                 value={form.email}
                 name="email"
                 icon={Mail}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Téléphone"
                 value={form.telephone}
                 name="telephone"
                 icon={Phone}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Spécialité"
                 value={form.specialite}
                 name="specialite"
                 icon={Activity}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Service"
                 value={form.service}
                 name="service"
                 icon={Briefcase}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Expérience"
                 value={form.experience}
                 name="experience"
                 icon={Clock}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Diplôme"
                 value={form.diplome}
                 name="diplome"
                 icon={Award}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Numéro d'ordre"
                 value={form.ordre}
                 name="ordre"
                 icon={Hash}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
             </div>
           </section>

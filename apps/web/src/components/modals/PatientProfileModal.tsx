@@ -40,13 +40,12 @@ const Field = ({
   label,
   value,
   name,
+  icon: Icon,
   isEditing,
   setForm,
   form,
-  icon: Icon,
-  editable = true,
-}: any) => {
-  const uniqueId = `modal-input-${name}`; // 👈 ID UNIQUE
+}: FieldProps) => {
+  const uniqueId = `modal-input-${name}`;
   return (
     <div className="flex flex-col gap-1">
       <label
@@ -57,22 +56,21 @@ const Field = ({
       </label>
       <div
         className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${
-          isEditing && editable
+          isEditing
             ? "bg-white border-teal-500 shadow-sm"
             : "bg-gray-50 border-transparent text-gray-500"
         }`}
       >
         <Icon
           size={16}
-          className={isEditing && editable ? "text-teal-500" : "text-gray-400"}
+          className={isEditing ? "text-teal-500" : "text-gray-400"}
         />
-        {isEditing && editable ? (
+        {isEditing ? (
           <input
-            id={uniqueId} // 👈 BRANCHEMENT DE L'ID
+            id={uniqueId}
             className="bg-transparent w-full outline-none text-sm font-bold text-gray-900"
             value={value}
             onChange={(e) => setForm({ ...form, [name]: e.target.value })}
-            autoFocus={false} // 👈 SECURITÉ
           />
         ) : (
           <span className="text-sm font-bold text-gray-800">
@@ -209,24 +207,36 @@ export default function PatientProfileModal({
                 value={form.nom}
                 name="nom"
                 icon={User}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Téléphone"
                 value={form.telephone}
                 name="telephone"
                 icon={Phone}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Date de Naissance"
                 value={form.dateNaissance}
                 name="dateNaissance"
                 icon={Calendar}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Genre"
                 value={form.genre}
                 name="genre"
                 icon={User}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <div className="md:col-span-2">
                 <Field
@@ -234,6 +244,9 @@ export default function PatientProfileModal({
                   value={form.adresse}
                   name="adresse"
                   icon={MapPin}
+                  isEditing={isEditing} // 👈 AJOUTE CECI
+                  setForm={setForm} // 👈 AJOUTE CECI
+                  form={form}
                 />
               </div>
             </div>
@@ -250,12 +263,18 @@ export default function PatientProfileModal({
                 value={form.mutuelle}
                 name="mutuelle"
                 icon={CreditCard}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <Field
                 label="Groupe Sanguin"
                 value={form.groupeSanguin}
                 name="groupeSanguin"
                 icon={Droplet}
+                isEditing={isEditing} // 👈 AJOUTE CECI
+                setForm={setForm} // 👈 AJOUTE CECI
+                form={form}
               />
               <div className="md:col-span-2">
                 <Field
@@ -263,6 +282,9 @@ export default function PatientProfileModal({
                   value={form.allergies}
                   name="allergies"
                   icon={AlertCircle}
+                  isEditing={isEditing} // 👈 AJOUTE CECI
+                  setForm={setForm} // 👈 AJOUTE CECI
+                  form={form}
                 />
               </div>
               <div className="md:col-span-2">
@@ -271,6 +293,9 @@ export default function PatientProfileModal({
                   value={form.traitements}
                   name="traitements"
                   icon={Activity}
+                  isEditing={isEditing} // 👈 AJOUTE CECI
+                  setForm={setForm} // 👈 AJOUTE CECI
+                  form={form}
                 />
               </div>
             </div>
