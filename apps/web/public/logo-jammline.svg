@@ -1,0 +1,14 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond circulaire avec un léger dégradé comme sur ton image -->
+  <circle cx="100" cy="100" r="100" fill="url(#paint0_linear)"/>
+  
+  <!-- La ligne de pouls (Pulse) -->
+  <path d="M40 100H65L85 50L115 150L135 100H160" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#0D9488"/>
+    </linearGradient>
+  </defs>
+</svg>
